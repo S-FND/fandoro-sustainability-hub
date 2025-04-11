@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -12,7 +11,7 @@ import {
   Sprout,
   ClipboardList,
   GraduationCap,
-  Audit,
+  ClipboardCheck,
   CheckSquare,
   User,
   Boxes,
@@ -114,7 +113,7 @@ export const Sidebar = () => {
       {
         name: 'EHS Audits',
         path: '/dashboard/ehs-audits',
-        icon: <Audit size={18} />,
+        icon: <ClipboardCheck size={18} />,
       },
       {
         name: 'Supplier Sustainability',
@@ -160,7 +159,7 @@ export const Sidebar = () => {
       {
         name: 'Audits',
         path: '/supplier/audits',
-        icon: <Audit size={18} />,
+        icon: <ClipboardCheck size={18} />,
       },
       {
         name: 'Documents',

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -12,8 +11,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { CalendarCheck2, CheckCircle, Clock, Plus, Users } from "lucide-react";
 
-// Sample trainings
-const trainingsList = [
+type Training = {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  date?: string;
+  department?: string;
+  delivery?: string;
+  location?: string;
+};
+
+const trainingsList: Training[] = [
   {
     id: 1,
     name: "Fire Safety Training",
@@ -49,7 +58,7 @@ const trainingsList = [
 ];
 
 const EHSTrainings = () => {
-  const [trainings, setTrainings] = useState(trainingsList);
+  const [trainings, setTrainings] = useState<Training[]>(trainingsList);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTraining, setSelectedTraining] = useState<string | undefined>();
   const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>();
@@ -78,7 +87,6 @@ const EHSTrainings = () => {
       return;
     }
 
-    // Update the training status
     const updatedTrainings = trainings.map(t => {
       if (t.id === parseInt(selectedTraining)) {
         return {
