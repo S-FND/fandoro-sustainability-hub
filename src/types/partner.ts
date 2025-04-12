@@ -1,3 +1,4 @@
+
 import { User } from "./user";
 
 export type PartnerType = 'solution_provider' | 'training_provider' | 'auditor';
@@ -13,6 +14,8 @@ export type ServiceOffering =
   | 'social_responsibility'
   | 'governance_advisory';
 
+export type ProfileStatus = 'pending' | 'approved' | 'rejected';
+
 export interface PartnerProfile {
   id: string;
   organization_name: string;
@@ -21,7 +24,7 @@ export interface PartnerProfile {
   website?: string;
   services_offered?: string[];
   partner_type: PartnerType;
-  profile_status: 'pending' | 'approved' | 'rejected';
+  profile_status: ProfileStatus;
   created_at: string;
   updated_at: string;
 }

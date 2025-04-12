@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -7,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { PartnerProfile as ProfileType, CaseStudy, PartnerType } from "@/types/partner";
+import { PartnerProfile as ProfileType, CaseStudy, PartnerType, ProfileStatus } from "@/types/partner";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Plus, Briefcase, Building, MapPin, Link, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -38,10 +37,11 @@ const PartnerProfile = () => {
         }
         
         if (profileData) {
-          // Ensure partner_type is properly typed as PartnerType
-          const typedProfileData: ProfileType = {
+          // Cast the profile data to ensure type safety
+          const typedProfileData: PartnerProfile = {
             ...profileData,
-            partner_type: profileData.partner_type as PartnerType
+            partner_type: profileData.partner_type as PartnerType,
+            profile_status: profileData.profile_status as ProfileStatus
           };
           
           setProfile(typedProfileData);

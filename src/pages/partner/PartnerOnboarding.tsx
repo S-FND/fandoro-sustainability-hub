@@ -59,7 +59,8 @@ const PartnerOnboarding = () => {
         address: address || null,
         website: website || null,
         services_offered: selectedServices,
-        partner_type: user?.partnerType as PartnerType || "solution_provider",
+        partner_type: (user?.partnerType as PartnerType) || "solution_provider",
+        profile_status: "pending"
       });
 
       if (error) throw error;
