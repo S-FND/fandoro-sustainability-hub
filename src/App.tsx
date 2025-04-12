@@ -16,6 +16,9 @@ import EnterpriseDashboard from "./pages/dashboard/EnterpriseDashboard";
 import GeneralDashboard from "./pages/dashboard/GeneralDashboard";
 import EnterpriseSetup from "./pages/dashboard/EnterpriseSetup";
 import EHSTrainings from "./pages/dashboard/EHSTrainings";
+import Stakeholders from "./pages/dashboard/Stakeholders";
+import Materiality from "./pages/dashboard/Materiality";
+import EHSAudits from "./pages/dashboard/EHSAudits";
 
 // GHG Accounting Pages
 import Scope1EmissionsPage from "./pages/dashboard/ghg/Scope1Emissions";
@@ -24,6 +27,8 @@ import Scope3EmissionsPage from "./pages/dashboard/ghg/Scope3Emissions";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import EHSTemplates from "./pages/admin/EHSTemplates";
+import AuditorAssignment from "./pages/admin/AuditorAssignment";
 
 // Default & Error Pages
 import Index from "./pages/Index";
@@ -53,6 +58,9 @@ const ProtectedRoute = ({ children, allowedRoles = [] }: { children: JSX.Element
     }
     if (user.role === 'employee') {
       return <Navigate to="/employee/profile" replace />;
+    }
+    if (user.role === 'auditor') {
+      return <Navigate to="/auditor/dashboard" replace />;
     }
     // Default fallback
     return <Navigate to="/login" replace />;
@@ -113,10 +121,37 @@ const App = () => (
             />
             
             <Route 
+              path="/dashboard/stakeholders" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Stakeholders />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/materiality" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Materiality />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
               path="/dashboard/ehs-trainings" 
               element={
                 <ProtectedRoute allowedRoles={['enterprise']}>
                   <EHSTrainings />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/ehs-audits" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <EHSAudits />
                 </ProtectedRoute>
               } 
             />
@@ -155,6 +190,24 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['fandoro_admin']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin/ehs-templates" 
+              element={
+                <ProtectedRoute allowedRoles={['fandoro_admin']}>
+                  <EHSTemplates />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin/auditor-assignment" 
+              element={
+                <ProtectedRoute allowedRoles={['fandoro_admin']}>
+                  <AuditorAssignment />
                 </ProtectedRoute>
               } 
             />

@@ -9,6 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ehs_checklist_questions: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          iso_standard: string | null
+          question_text: string
+          sequence_order: number | null
+          template_id: string | null
+          updated_at: string
+          weightage: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          iso_standard?: string | null
+          question_text: string
+          sequence_order?: number | null
+          template_id?: string | null
+          updated_at?: string
+          weightage?: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          iso_standard?: string | null
+          question_text?: string
+          sequence_order?: number | null
+          template_id?: string | null
+          updated_at?: string
+          weightage?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ehs_checklist_questions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ehs_checklist_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          industry_category: string
+          is_default: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          industry_category: string
+          is_default?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          industry_category?: string
+          is_default?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       enterprise_ai_chats: {
         Row: {
           ai_response: string
@@ -30,6 +107,99 @@ export type Database = {
           enterprise_id?: string
           id?: string
           user_query?: string
+        }
+        Relationships: []
+      }
+      enterprise_audit_responses: {
+        Row: {
+          action_deadline: string | null
+          action_required: string | null
+          action_status: string | null
+          action_status_date: string | null
+          action_taken: string | null
+          audit_id: string
+          created_at: string
+          id: string
+          non_conformance_description: string | null
+          question_id: string
+          response: string
+          score: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          action_deadline?: string | null
+          action_required?: string | null
+          action_status?: string | null
+          action_status_date?: string | null
+          action_taken?: string | null
+          audit_id: string
+          created_at?: string
+          id?: string
+          non_conformance_description?: string | null
+          question_id: string
+          response: string
+          score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          action_deadline?: string | null
+          action_required?: string | null
+          action_status?: string | null
+          action_status_date?: string | null
+          action_taken?: string | null
+          audit_id?: string
+          created_at?: string
+          id?: string
+          non_conformance_description?: string | null
+          question_id?: string
+          response?: string
+          score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_audit_responses_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_ehs_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enterprise_audit_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_checklist_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enterprise_auditor_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          auditor_id: string
+          enterprise_id: string
+          id: string
+          status: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          auditor_id: string
+          enterprise_id: string
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          auditor_id?: string
+          enterprise_id?: string
+          id?: string
+          status?: string | null
         }
         Relationships: []
       }
@@ -71,6 +241,98 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      enterprise_data_approvals: {
+        Row: {
+          approver_id: string
+          comments: string | null
+          data_id: string
+          data_type: string
+          enterprise_id: string
+          id: string
+          responded_at: string | null
+          status: string | null
+          submitted_at: string
+          submitted_by: string
+        }
+        Insert: {
+          approver_id: string
+          comments?: string | null
+          data_id: string
+          data_type: string
+          enterprise_id: string
+          id?: string
+          responded_at?: string | null
+          status?: string | null
+          submitted_at?: string
+          submitted_by: string
+        }
+        Update: {
+          approver_id?: string
+          comments?: string | null
+          data_id?: string
+          data_type?: string
+          enterprise_id?: string
+          id?: string
+          responded_at?: string | null
+          status?: string | null
+          submitted_at?: string
+          submitted_by?: string
+        }
+        Relationships: []
+      }
+      enterprise_ehs_audits: {
+        Row: {
+          audit_date: string | null
+          auditor_id: string | null
+          completion_date: string | null
+          created_at: string
+          enterprise_id: string
+          id: string
+          max_score: number | null
+          notes: string | null
+          status: string
+          template_id: string | null
+          total_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          audit_date?: string | null
+          auditor_id?: string | null
+          completion_date?: string | null
+          created_at?: string
+          enterprise_id: string
+          id?: string
+          max_score?: number | null
+          notes?: string | null
+          status?: string
+          template_id?: string | null
+          total_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          audit_date?: string | null
+          auditor_id?: string | null
+          completion_date?: string | null
+          created_at?: string
+          enterprise_id?: string
+          id?: string
+          max_score?: number | null
+          notes?: string | null
+          status?: string
+          template_id?: string | null
+          total_score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_ehs_audits_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       enterprise_esg_risks: {
         Row: {
@@ -153,6 +415,182 @@ export type Database = {
         }
         Relationships: []
       }
+      enterprise_materiality_assessments: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          enterprise_id: string
+          id: string
+          start_date: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          enterprise_id: string
+          id?: string
+          start_date?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          enterprise_id?: string
+          id?: string
+          start_date?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      enterprise_materiality_invites: {
+        Row: {
+          assessment_id: string | null
+          completed_at: string | null
+          created_at: string
+          email_sent_at: string | null
+          id: string
+          invite_token: string | null
+          stakeholder_id: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          assessment_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          invite_token?: string | null
+          stakeholder_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          invite_token?: string | null
+          stakeholder_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_materiality_invites_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_materiality_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enterprise_materiality_invites_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enterprise_materiality_responses: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          impact_on_business: number
+          impact_on_environment: number
+          invite_id: string | null
+          topic_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          impact_on_business: number
+          impact_on_environment: number
+          invite_id?: string | null
+          topic_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          impact_on_business?: number
+          impact_on_environment?: number
+          invite_id?: string | null
+          topic_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_materiality_responses_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_materiality_invites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enterprise_materiality_responses_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_materiality_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enterprise_materiality_topics: {
+        Row: {
+          assessment_id: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          sequence_order: number | null
+          topic_name: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          sequence_order?: number | null
+          topic_name: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          sequence_order?: number | null
+          topic_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_materiality_topics_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_materiality_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enterprise_sdg_progress: {
         Row: {
           created_at: string
@@ -189,12 +627,54 @@ export type Database = {
         }
         Relationships: []
       }
+      enterprise_stakeholders: {
+        Row: {
+          created_at: string
+          email: string
+          enterprise_id: string
+          id: string
+          name: string
+          notes: string | null
+          organization: string | null
+          phone: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          enterprise_id: string
+          id?: string
+          name: string
+          notes?: string | null
+          organization?: string | null
+          phone?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          enterprise_id?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          organization?: string | null
+          phone?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_default_iso_checklist: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -21,6 +21,8 @@ import {
   Zap,
   Warehouse,
   LineChart,
+  UserPlus,
+  BarChartHorizontal,
 } from "lucide-react";
 
 export const Sidebar = () => {
@@ -54,6 +56,16 @@ export const Sidebar = () => {
         icon: <GraduationCap size={18} />,
       },
       {
+        name: 'EHS Audit Templates',
+        path: '/admin/ehs-templates',
+        icon: <ClipboardCheck size={18} />,
+      },
+      {
+        name: 'EHS Auditor Assignment',
+        path: '/admin/auditor-assignment',
+        icon: <UserPlus size={18} />,
+      },
+      {
         name: 'Supplier Sustainability',
         path: '/admin/supplier-sustainability',
         icon: <Boxes size={18} />,
@@ -82,9 +94,14 @@ export const Sidebar = () => {
         icon: <FileCheck size={18} />,
       },
       {
+        name: 'Stakeholders',
+        path: '/dashboard/stakeholders',
+        icon: <UserPlus size={18} />,
+      },
+      {
         name: 'Materiality',
         path: '/dashboard/materiality',
-        icon: <TrendingUp size={18} />,
+        icon: <BarChartHorizontal size={18} />,
       },
       {
         name: 'ESG KPIs',
@@ -198,6 +215,29 @@ export const Sidebar = () => {
         name: 'Documents',
         path: '/supplier/documents',
         icon: <FileText size={18} />,
+      },
+    ];
+  } else if (user?.role === 'auditor') {
+    menuItems = [
+      {
+        name: 'Auditor Dashboard',
+        path: '/auditor/dashboard',
+        icon: <BarChart3 size={18} />,
+      },
+      {
+        name: 'Assigned Enterprises',
+        path: '/auditor/enterprises',
+        icon: <Building size={18} />,
+      },
+      {
+        name: 'EHS Audits',
+        path: '/auditor/ehs-audits',
+        icon: <ClipboardCheck size={18} />,
+      },
+      {
+        name: 'Templates',
+        path: '/auditor/templates',
+        icon: <FileCheck size={18} />,
       },
     ];
   }
