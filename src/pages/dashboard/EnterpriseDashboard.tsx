@@ -9,8 +9,10 @@ import { SDGManagement } from "@/components/dashboard/SDGManagement";
 import { ApprovalsInbox } from "@/components/dashboard/ApprovalsInbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { Building, CloudRain, Scale, AlertCircle } from "lucide-react";
+import { Building, CloudRain, Scale, AlertCircle, BarChartHorizontal, UserPlus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const EnterpriseDashboard = () => {
   const { user } = useAuth();
@@ -67,6 +69,57 @@ const EnterpriseDashboard = () => {
               </p>
             </CardContent>
           </Card>
+        </div>
+        
+        {/* Quick Action Links */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link to="/dashboard/stakeholders">
+            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center">
+                  <UserPlus className="h-5 w-5 mr-2 text-primary" />
+                  Manage Stakeholders
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Add, edit, and organize your organization's stakeholders
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+          
+          <Link to="/dashboard/materiality">
+            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center">
+                  <BarChartHorizontal className="h-5 w-5 mr-2 text-primary" />
+                  Materiality Assessment
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Identify and prioritize ESG topics that matter most
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/dashboard/compliances">
+            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center">
+                  <Scale className="h-5 w-5 mr-2 text-primary" />
+                  View Compliance Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">
+                  Monitor and manage ESG compliance requirements
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
         
         {/* Company Overview and Data Management */}
