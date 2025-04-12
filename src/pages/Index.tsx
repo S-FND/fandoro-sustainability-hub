@@ -14,13 +14,11 @@ const Index = () => {
       if (user.role === 'fandoro_admin') {
         navigate('/admin/dashboard');
       } else if (user.role === 'enterprise') {
-        navigate('/dashboard/enterprise');
+        navigate('/dashboard/enterprise'); // Updated to new enterprise dashboard
       } else if (user.role === 'employee') {
         navigate('/employee/profile');
       } else if (user.role === 'supplier') {
         navigate('/supplier/profile');
-      } else if (user.role === 'partner') {
-        navigate('/partner/dashboard');
       }
     }
   }, [user, navigate]);
@@ -50,13 +48,6 @@ const Index = () => {
             onClick={() => navigate('/register')}
           >
             Register
-          </Button>
-          <Button
-            className="text-lg px-8 py-6"
-            variant="secondary"
-            onClick={() => navigate('/partner-register')}
-          >
-            Register as Partner
           </Button>
         </div>
         
@@ -98,9 +89,9 @@ const Index = () => {
                 <path d="M9 21V9"></path>
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Partner Network</h3>
+            <h3 className="text-xl font-semibold mb-2">Supplier Audits</h3>
             <p className="text-gray-600">
-              Connect with qualified sustainability solution providers, trainers, and auditors to help achieve your ESG goals
+              Create, distribute, and analyze sustainability audit checklists for your supplier network
             </p>
           </div>
         </div>

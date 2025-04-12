@@ -1,7 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types/user";
-import { PartnerProfile, PartnerType } from "@/types/partner";
-import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -25,7 +24,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Mock authentication for demo purposes
   useEffect(() => {
+    // Check if user is stored in localStorage
     const storedUser = localStorage.getItem('fandoro_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -36,6 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
+      // In a real app, this would be an API call to authenticate
+      // For demo purposes, we'll simulate a successful login
+      
+      // Create a mock user based on email domain for demo
       let mockUser: User;
       
       if (email.includes('fandoro.com')) {
@@ -69,18 +74,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: 'Supplier User',
           organization: 'Demo Supplier',
         };
-      } else if (email.includes('partner')) {
-        mockUser = {
-          id: '5',
-          email,
-          role: 'partner',
-          name: 'Partner User',
-          organization: 'Demo Partner',
-          partnerType: 'solution_provider',
-        };
       } else if (email.includes('investor')) {
         mockUser = {
-          id: '6',
+          id: '5',
           email,
           role: 'investor',
           name: 'Investor User',
@@ -88,15 +84,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       } else {
         mockUser = {
-          id: '7',
+          id: '6',
           email,
           role: 'partner',
           name: 'Partner User',
           organization: 'Demo Partner',
-          partnerType: 'solution_provider',
         };
       }
       
+      // Set the user in state and localStorage
       setUser(mockUser);
       localStorage.setItem('fandoro_user', JSON.stringify(mockUser));
       
@@ -116,11 +112,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: any) => {
     try {
       setLoading(true);
+      // In a real app, this would be an API call to register
+      // For demo purposes, we'll simulate a successful registration
+      
       const newUser = {
         id: Date.now().toString(),
         ...userData,
       };
       
+      // Set the user in state and localStorage
       setUser(newUser);
       localStorage.setItem('fandoro_user', JSON.stringify(newUser));
       

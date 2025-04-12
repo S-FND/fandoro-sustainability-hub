@@ -1,124 +1,224 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext';
-import './App.css';
 
-// Dashboard pages
-import EnterpriseDashboard from './pages/dashboard/Enterprise';
-import EHSAudits from './pages/dashboard/EHSAudits';
-import Stakeholders from './pages/dashboard/Stakeholders';
-import Materiality from './pages/dashboard/Materiality';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
-// Admin pages
-import AuditorAssignment from './pages/admin/AuditorAssignment';
-import EHSTemplates from './pages/admin/EHSTemplates';
+// Auth Pages
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import EnterpriseOnboarding from "./pages/onboarding/EnterpriseOnboarding";
 
-// Auth pages
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import PartnerRegister from './pages/auth/PartnerRegister';
+// Enterprise Dashboard Pages
+import EnterpriseDashboard from "./pages/dashboard/EnterpriseDashboard";
+import GeneralDashboard from "./pages/dashboard/GeneralDashboard";
+import EnterpriseSetup from "./pages/dashboard/EnterpriseSetup";
+import EHSTrainings from "./pages/dashboard/EHSTrainings";
+import Stakeholders from "./pages/dashboard/Stakeholders";
+import Materiality from "./pages/dashboard/Materiality";
+import EHSAudits from "./pages/dashboard/EHSAudits";
 
-// Partner pages
-import PartnerDashboard from './pages/partner/PartnerDashboard';
-import PartnerProfile from './pages/partner/PartnerProfile';
-import PartnerOnboarding from './pages/partner/PartnerOnboarding';
-import AddCaseStudy from './pages/partner/AddCaseStudy';
-import EditProfile from './pages/partner/EditProfile';
+// GHG Accounting Pages
+import Scope1EmissionsPage from "./pages/dashboard/ghg/Scope1Emissions";
+import Scope2EmissionsPage from "./pages/dashboard/ghg/Scope2Emissions";
+import Scope3EmissionsPage from "./pages/dashboard/ghg/Scope3Emissions";
 
-// Other pages
-import NotFound from './pages/NotFound';
+// Admin Pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import EHSTemplates from "./pages/admin/EHSTemplates";
+import AuditorAssignment from "./pages/admin/AuditorAssignment";
 
-/**
- * Main application component with routing configuration
- */
-function App() {
+// Default & Error Pages
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+// Protected route component
+const ProtectedRoute = ({ children, allowedRoles = [] }: { children: JSX.Element, allowedRoles?: string[] }) => {
   const { user, loading } = useAuth();
-
+  
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    // Redirect based on role
+    if (user.role === 'fandoro_admin') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    if (user.role === 'enterprise') {
+      return <Navigate to="/dashboard/enterprise" replace />;
+    }
+    if (user.role === 'employee') {
+      return <Navigate to="/employee/profile" replace />;
+    }
+    if (user.role === 'auditor') {
+      return <Navigate to="/auditor/dashboard" replace />;
+    }
+    // Default fallback
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
 
-  return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/partner-register" element={<PartnerRegister />} />
-      
-      {/* Private routes that require authentication */}
-      {user ? (
-        <>
-          {/* Routes based on user role */}
-          {user.role === 'fandoro_admin' && (
-            <>
-              <Route path="/admin/dashboard" element={<EnterpriseDashboard />} />
-              <Route path="/admin/enterprises" element={<EnterpriseDashboard />} />
-              <Route path="/admin/users" element={<EnterpriseDashboard />} />
-              <Route path="/admin/auditor-assignment" element={<AuditorAssignment />} />
-              <Route path="/admin/ehs-templates" element={<EHSTemplates />} />
-              <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-            </>
-          )}
-          
-          {user.role === 'enterprise' && (
-            <>
-              <Route path="/dashboard/enterprise" element={<EnterpriseDashboard />} />
-              <Route path="/dashboard/ehs-audits" element={<EHSAudits />} />
-              <Route path="/dashboard/stakeholders" element={<Stakeholders />} />
-              <Route path="/dashboard/materiality" element={<Materiality />} />
-              <Route path="/" element={<Navigate to="/dashboard/enterprise" replace />} />
-            </>
-          )}
-          
-          {user.role === 'auditor' && (
-            <>
-              <Route path="/auditor/dashboard" element={<EnterpriseDashboard />} />
-              <Route path="/auditor/enterprises" element={<EnterpriseDashboard />} />
-              <Route path="/auditor/ehs-audits" element={<EHSAudits />} />
-              <Route path="/" element={<Navigate to="/auditor/dashboard" replace />} />
-            </>
-          )}
-          
-          {user.role === 'partner' && (
-            <>
-              <Route path="/partner/dashboard" element={<PartnerDashboard />} />
-              <Route path="/partner/profile" element={<PartnerProfile />} />
-              <Route path="/partner/onboarding" element={<PartnerOnboarding />} />
-              <Route path="/partner/add-case-study" element={<AddCaseStudy />} />
-              <Route path="/partner/edit-profile" element={<EditProfile />} />
-              <Route path="/" element={<Navigate to="/partner/dashboard" replace />} />
-            </>
-          )}
-          
-          {/* Default redirect based on role if no route matched */}
-          <Route
-            path="*"
-            element={
-              user.role === 'fandoro_admin' ? (
-                <Navigate to="/admin/dashboard" replace />
-              ) : user.role === 'enterprise' ? (
-                <Navigate to="/dashboard/enterprise" replace />
-              ) : user.role === 'auditor' ? (
-                <Navigate to="/auditor/dashboard" replace />
-              ) : user.role === 'partner' ? (
-                <Navigate to="/partner/dashboard" replace />
-              ) : (
-                <NotFound />
-              )
-            }
-          />
-        </>
-      ) : (
-        // Redirect to login if not authenticated
-        <>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </>
-      )}
-    </Routes>
-  );
-}
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Onboarding */}
+            <Route 
+              path="/onboarding" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <EnterpriseOnboarding />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Enterprise Dashboard Routes */}
+            <Route 
+              path="/dashboard/enterprise" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <EnterpriseDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/general" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <GeneralDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/setup" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <EnterpriseSetup />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/stakeholders" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Stakeholders />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/materiality" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Materiality />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/ehs-trainings" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <EHSTrainings />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/ehs-audits" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <EHSAudits />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* GHG Accounting Routes */}
+            <Route 
+              path="/dashboard/ghg/scope1" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Scope1EmissionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/ghg/scope2" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Scope2EmissionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/ghg/scope3" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Scope3EmissionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin Routes */}
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <ProtectedRoute allowedRoles={['fandoro_admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin/ehs-templates" 
+              element={
+                <ProtectedRoute allowedRoles={['fandoro_admin']}>
+                  <EHSTemplates />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin/auditor-assignment" 
+              element={
+                <ProtectedRoute allowedRoles={['fandoro_admin']}>
+                  <AuditorAssignment />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Catchall route for 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
