@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -38,7 +39,7 @@ const PartnerProfile = () => {
         
         if (profileData) {
           // Cast the profile data to ensure type safety
-          const typedProfileData: PartnerProfile = {
+          const typedProfileData: ProfileType = {
             ...profileData,
             partner_type: profileData.partner_type as PartnerType,
             profile_status: profileData.profile_status as ProfileStatus
