@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { PlusCircle, Trash2, Save, ListChecks, Pencil } from "lucide-react";
+import { PlusCircle, Trash2, Save, ListChecks, Pencil, CheckSquare } from "lucide-react";
 import {
   Dialog,
   DialogContent,

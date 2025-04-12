@@ -49,6 +49,7 @@ interface EHSAudit {
   total_score: number | null;
   max_score: number | null;
   template: {
+    id: string;
     title: string;
     description: string;
   };
@@ -102,6 +103,7 @@ const EHSAudits = () => {
         .select(`
           *,
           template:template_id (
+            id,
             title,
             description
           )
@@ -110,8 +112,6 @@ const EHSAudits = () => {
       
       if (error) throw error;
       
-      // Since we can't directly query the auth.users table,
-      // we'll use dummy auditor data for now
       const auditsWithAuditors = data?.map(audit => ({
         ...audit,
         auditor: audit.auditor_id 
@@ -137,7 +137,6 @@ const EHSAudits = () => {
     setViewDetailsOpen(true);
     
     try {
-      // Load the checklist questions for this template
       const { data: questionsData, error: questionsError } = await supabase
         .from("ehs_checklist_questions")
         .select("*")
@@ -146,7 +145,6 @@ const EHSAudits = () => {
       if (questionsError) throw questionsError;
       setAuditQuestions(questionsData || []);
       
-      // Load the audit responses
       const { data: responsesData, error: responsesError } = await supabase
         .from("enterprise_audit_responses")
         .select("*")
@@ -221,7 +219,6 @@ const EHSAudits = () => {
         
       if (error) throw error;
       
-      // Update local state
       setAuditResponses(auditResponses.map(response => 
         response.id === responseId 
           ? { ...response, action_taken: actionTaken, action_status: actionStatus } 
@@ -242,7 +239,6 @@ const EHSAudits = () => {
     }
   };
 
-  // Calculate compliance status
   const calculateComplianceStatus = (audit: EHSAudit) => {
     if (!audit.total_score || !audit.max_score) return "N/A";
     
@@ -363,7 +359,6 @@ const EHSAudits = () => {
           </div>
         )}
         
-        {/* Audit Details Dialog */}
         <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             {selectedAudit && (
@@ -510,7 +505,7 @@ const EHSAudits = () => {
                           {auditResponses
                             .filter(r => r.response === "non_compliant")
                             .map((response) => {
-                              const question = auditQuestions.find(q => q.question_id === response.question_id);
+                              const question = auditQuestions.find(q => q.id === response.question_id);
                               
                               return (
                                 <TableRow key={response.id}>
@@ -535,7 +530,6 @@ const EHSAudits = () => {
                                         variant="outline" 
                                         size="sm"
                                         onClick={() => {
-                                          // In a real app, this would open a dialog to update the action
                                           const actionTaken = prompt("Enter the action taken:");
                                           if (actionTaken) {
                                             handleUpdateActionTaken(response.id, actionTaken, "closed");
