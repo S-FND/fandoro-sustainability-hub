@@ -17,6 +17,14 @@ import EHSTemplates from './pages/admin/EHSTemplates';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import PartnerRegister from './pages/auth/PartnerRegister';
+
+// Partner pages
+import PartnerDashboard from './pages/partner/PartnerDashboard';
+import PartnerProfile from './pages/partner/PartnerProfile';
+import PartnerOnboarding from './pages/partner/PartnerOnboarding';
+import AddCaseStudy from './pages/partner/AddCaseStudy';
+import EditProfile from './pages/partner/EditProfile';
 
 // Other pages
 import NotFound from './pages/NotFound';
@@ -37,6 +45,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/partner-register" element={<PartnerRegister />} />
       
       {/* Private routes that require authentication */}
       {user ? (
@@ -72,6 +81,17 @@ function App() {
             </>
           )}
           
+          {user.role === 'partner' && (
+            <>
+              <Route path="/partner/dashboard" element={<PartnerDashboard />} />
+              <Route path="/partner/profile" element={<PartnerProfile />} />
+              <Route path="/partner/onboarding" element={<PartnerOnboarding />} />
+              <Route path="/partner/add-case-study" element={<AddCaseStudy />} />
+              <Route path="/partner/edit-profile" element={<EditProfile />} />
+              <Route path="/" element={<Navigate to="/partner/dashboard" replace />} />
+            </>
+          )}
+          
           {/* Default redirect based on role if no route matched */}
           <Route
             path="*"
@@ -82,6 +102,8 @@ function App() {
                 <Navigate to="/dashboard/enterprise" replace />
               ) : user.role === 'auditor' ? (
                 <Navigate to="/auditor/dashboard" replace />
+              ) : user.role === 'partner' ? (
+                <Navigate to="/partner/dashboard" replace />
               ) : (
                 <NotFound />
               )

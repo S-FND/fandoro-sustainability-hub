@@ -1,6 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types/user";
+import { PartnerProfile } from "@/types/partner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -37,7 +39,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      // In a real app, this would be an API call to authenticate
+      // In a real app with Supabase, we would use:
+      // const { data, error } = await supabase.auth.signInWithPassword({
+      //   email, password
+      // });
+      // if (error) throw error;
+      // Then fetch profile data as needed
+      
       // For demo purposes, we'll simulate a successful login
       
       // Create a mock user based on email domain for demo
@@ -74,9 +82,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: 'Supplier User',
           organization: 'Demo Supplier',
         };
-      } else if (email.includes('investor')) {
+      } else if (email.includes('partner')) {
         mockUser = {
           id: '5',
+          email,
+          role: 'partner',
+          name: 'Partner User',
+          organization: 'Demo Partner',
+          partnerType: 'solution_provider',
+        };
+      } else if (email.includes('investor')) {
+        mockUser = {
+          id: '6',
           email,
           role: 'investor',
           name: 'Investor User',
@@ -84,11 +101,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       } else {
         mockUser = {
-          id: '6',
+          id: '7',
           email,
           role: 'partner',
           name: 'Partner User',
           organization: 'Demo Partner',
+          partnerType: 'solution_provider',
         };
       }
       
@@ -105,6 +123,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    // In a real app with Supabase, we would use:
+    // await supabase.auth.signOut();
+    
     setUser(null);
     localStorage.removeItem('fandoro_user');
   };
@@ -112,7 +133,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: any) => {
     try {
       setLoading(true);
-      // In a real app, this would be an API call to register
+      // In a real app with Supabase, we would use:
+      // const { data, error } = await supabase.auth.signUp({
+      //   email: userData.email,
+      //   password: userData.password,
+      //   options: {
+      //     data: {
+      //       name: userData.name,
+      //       organization: userData.organization,
+      //       role: userData.role
+      //     }
+      //   }
+      // });
+      // if (error) throw error;
+      
       // For demo purposes, we'll simulate a successful registration
       
       const newUser = {
