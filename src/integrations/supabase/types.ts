@@ -9,7 +9,186 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      enterprise_ai_chats: {
+        Row: {
+          ai_response: string
+          created_at: string
+          enterprise_id: string
+          id: string
+          user_query: string
+        }
+        Insert: {
+          ai_response: string
+          created_at?: string
+          enterprise_id: string
+          id?: string
+          user_query: string
+        }
+        Update: {
+          ai_response?: string
+          created_at?: string
+          enterprise_id?: string
+          id?: string
+          user_query?: string
+        }
+        Relationships: []
+      }
+      enterprise_compliance: {
+        Row: {
+          compliance_type: string
+          created_at: string
+          description: string
+          due_date: string | null
+          enterprise_id: string
+          id: string
+          remediation_plan: string | null
+          severity: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          compliance_type: string
+          created_at?: string
+          description: string
+          due_date?: string | null
+          enterprise_id: string
+          id?: string
+          remediation_plan?: string | null
+          severity?: string | null
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          compliance_type?: string
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          enterprise_id?: string
+          id?: string
+          remediation_plan?: string | null
+          severity?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      enterprise_esg_risks: {
+        Row: {
+          created_at: string
+          enterprise_id: string
+          id: string
+          impact: string
+          likelihood: string
+          mitigation_plan: string | null
+          risk_category: string
+          risk_description: string
+          risk_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enterprise_id: string
+          id?: string
+          impact: string
+          likelihood: string
+          mitigation_plan?: string | null
+          risk_category: string
+          risk_description: string
+          risk_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enterprise_id?: string
+          id?: string
+          impact?: string
+          likelihood?: string
+          mitigation_plan?: string | null
+          risk_category?: string
+          risk_description?: string
+          risk_score?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      enterprise_ghg_emissions: {
+        Row: {
+          created_at: string
+          emission_source: string
+          emission_unit: string
+          emission_value: number
+          enterprise_id: string
+          id: string
+          industry_category: string
+          reporting_period_end: string
+          reporting_period_start: string
+          scope_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          emission_source: string
+          emission_unit: string
+          emission_value: number
+          enterprise_id: string
+          id?: string
+          industry_category: string
+          reporting_period_end: string
+          reporting_period_start: string
+          scope_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          emission_source?: string
+          emission_unit?: string
+          emission_value?: number
+          enterprise_id?: string
+          id?: string
+          industry_category?: string
+          reporting_period_end?: string
+          reporting_period_start?: string
+          scope_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      enterprise_sdg_progress: {
+        Row: {
+          created_at: string
+          enterprise_id: string
+          id: string
+          initiatives: string | null
+          metrics: string | null
+          progress_percentage: number
+          sdg_number: number
+          target_description: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enterprise_id: string
+          id?: string
+          initiatives?: string | null
+          metrics?: string | null
+          progress_percentage: number
+          sdg_number: number
+          target_description: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enterprise_id?: string
+          id?: string
+          initiatives?: string | null
+          metrics?: string | null
+          progress_percentage?: number
+          sdg_number?: number
+          target_description?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

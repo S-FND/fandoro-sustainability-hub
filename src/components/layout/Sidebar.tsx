@@ -1,3 +1,4 @@
+
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -15,6 +16,11 @@ import {
   CheckSquare,
   User,
   Boxes,
+  CloudRain,
+  Leaf,
+  Zap,
+  Warehouse,
+  LineChart,
 } from "lucide-react";
 
 export const Sidebar = () => {
@@ -61,6 +67,11 @@ export const Sidebar = () => {
   } else if (user?.role === 'enterprise') {
     menuItems = [
       {
+        name: 'Enterprise Dashboard',
+        path: '/dashboard/enterprise',
+        icon: <BarChart3 size={18} />,
+      },
+      {
         name: 'General Information',
         path: '/dashboard/general',
         icon: <FileText size={18} />,
@@ -78,12 +89,34 @@ export const Sidebar = () => {
       {
         name: 'ESG KPIs',
         path: '/dashboard/esg-kpis',
-        icon: <BarChart3 size={18} />,
+        icon: <LineChart size={18} />,
       },
       {
         name: 'SDGs',
         path: '/dashboard/sdgs',
         icon: <Sprout size={18} />,
+      },
+      {
+        name: 'GHG Accounting',
+        path: '/dashboard/ghg',
+        icon: <CloudRain size={18} />,
+        children: [
+          {
+            name: 'Scope 1 Emissions',
+            path: '/dashboard/ghg/scope1',
+            icon: <Warehouse size={18} />,
+          },
+          {
+            name: 'Scope 2 Emissions',
+            path: '/dashboard/ghg/scope2',
+            icon: <Zap size={18} />,
+          },
+          {
+            name: 'Scope 3 Emissions',
+            path: '/dashboard/ghg/scope3',
+            icon: <Leaf size={18} />,
+          }
+        ]
       },
       {
         name: 'Reporting',
@@ -169,6 +202,11 @@ export const Sidebar = () => {
     ];
   }
 
+  const isChildPathActive = (parentItem: any) => {
+    if (!parentItem.children) return false;
+    return parentItem.children.some((child: any) => location.pathname === child.path);
+  };
+
   return (
     <div className="flex flex-col h-full bg-sidebar border-r">
       <div className="p-4 border-b">
@@ -179,18 +217,45 @@ export const Sidebar = () => {
       <nav className="flex-1 overflow-y-auto p-2">
         <ul className="space-y-1">
           {menuItems.map((item) => (
-            <li key={item.path}>
+            <li key={item.path} className="space-y-1">
               <button
-                onClick={() => navigate(item.path)}
-                className={`w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                  location.pathname === item.path
+                onClick={() => !item.children && navigate(item.path)}
+                className={`w-full text-left px-3 py-2 rounded-md flex items-center justify-between transition-colors ${
+                  location.pathname === item.path || isChildPathActive(item)
                     ? 'bg-primary text-primary-foreground'
                     : 'hover:bg-sidebar-accent'
                 }`}
               >
-                {item.icon}
-                <span className="text-sm">{item.name}</span>
+                <div className="flex items-center space-x-2">
+                  {item.icon}
+                  <span className="text-sm">{item.name}</span>
+                </div>
+                {item.children && (
+                  <span className="text-xs">
+                    {isChildPathActive(item) ? "▼" : "▶"}
+                  </span>
+                )}
               </button>
+              
+              {/* Render child menu items if present */}
+              {item.children && (
+                <div className={`ml-6 space-y-1 ${isChildPathActive(item) ? 'block' : 'hidden'}`}>
+                  {item.children.map((child: any) => (
+                    <button
+                      key={child.path}
+                      onClick={() => navigate(child.path)}
+                      className={`w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 transition-colors ${
+                        location.pathname === child.path
+                          ? 'bg-primary text-primary-foreground'
+                          : 'hover:bg-sidebar-accent'
+                      }`}
+                    >
+                      {child.icon}
+                      <span className="text-sm">{child.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </li>
           ))}
         </ul>

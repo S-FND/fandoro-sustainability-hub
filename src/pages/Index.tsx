@@ -14,7 +14,7 @@ const Index = () => {
       if (user.role === 'fandoro_admin') {
         navigate('/admin/dashboard');
       } else if (user.role === 'enterprise') {
-        navigate('/dashboard/general');
+        navigate('/dashboard/enterprise'); // Updated to new enterprise dashboard
       } else if (user.role === 'employee') {
         navigate('/employee/profile');
       } else if (user.role === 'supplier') {

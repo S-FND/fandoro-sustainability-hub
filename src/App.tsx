@@ -12,9 +12,15 @@ import Register from "./pages/auth/Register";
 import EnterpriseOnboarding from "./pages/onboarding/EnterpriseOnboarding";
 
 // Enterprise Dashboard Pages
+import EnterpriseDashboard from "./pages/dashboard/EnterpriseDashboard";
 import GeneralDashboard from "./pages/dashboard/GeneralDashboard";
 import EnterpriseSetup from "./pages/dashboard/EnterpriseSetup";
 import EHSTrainings from "./pages/dashboard/EHSTrainings";
+
+// GHG Accounting Pages
+import Scope1EmissionsPage from "./pages/dashboard/ghg/Scope1Emissions";
+import Scope2EmissionsPage from "./pages/dashboard/ghg/Scope2Emissions";
+import Scope3EmissionsPage from "./pages/dashboard/ghg/Scope3Emissions";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -30,7 +36,6 @@ const ProtectedRoute = ({ children, allowedRoles = [] }: { children: JSX.Element
   const { user, loading } = useAuth();
   
   if (loading) {
-    // You might want to show a loading spinner here
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
   
@@ -44,7 +49,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }: { children: JSX.Element
       return <Navigate to="/admin/dashboard" replace />;
     }
     if (user.role === 'enterprise') {
-      return <Navigate to="/dashboard/general" replace />;
+      return <Navigate to="/dashboard/enterprise" replace />;
     }
     if (user.role === 'employee') {
       return <Navigate to="/employee/profile" replace />;
@@ -81,6 +86,15 @@ const App = () => (
             
             {/* Enterprise Dashboard Routes */}
             <Route 
+              path="/dashboard/enterprise" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <EnterpriseDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
               path="/dashboard/general" 
               element={
                 <ProtectedRoute allowedRoles={['enterprise']}>
@@ -88,6 +102,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            
             <Route 
               path="/dashboard/setup" 
               element={
@@ -96,11 +111,40 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            
             <Route 
               path="/dashboard/ehs-trainings" 
               element={
                 <ProtectedRoute allowedRoles={['enterprise']}>
                   <EHSTrainings />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* GHG Accounting Routes */}
+            <Route 
+              path="/dashboard/ghg/scope1" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Scope1EmissionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/ghg/scope2" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Scope2EmissionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/dashboard/ghg/scope3" 
+              element={
+                <ProtectedRoute allowedRoles={['enterprise']}>
+                  <Scope3EmissionsPage />
                 </ProtectedRoute>
               } 
             />
