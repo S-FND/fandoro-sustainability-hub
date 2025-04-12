@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -277,7 +276,6 @@ export const Sidebar = () => {
                 )}
               </button>
               
-              {/* Render child menu items if present */}
               {item.children && (
                 <div className={`ml-6 space-y-1 ${isChildPathActive(item) ? 'block' : 'hidden'}`}>
                   {item.children.map((child: any) => (

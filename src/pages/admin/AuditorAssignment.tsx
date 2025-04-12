@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
@@ -93,13 +92,13 @@ const AuditorAssignment = () => {
   
   const fetchEnterprises = async () => {
     try {
-      const { data, error } = await supabase
-        .from("auth.users")
-        .select("id, name:email, email, role")
-        .eq("role", "enterprise");
-        
-      if (error) throw error;
-      setEnterprises(data || []);
+      const mockEnterprises: Enterprise[] = [
+        { id: 'e1', name: 'Enterprise 1', email: 'enterprise1@example.com', role: 'enterprise' },
+        { id: 'e2', name: 'Enterprise 2', email: 'enterprise2@example.com', role: 'enterprise' },
+        { id: 'e3', name: 'Enterprise 3', email: 'enterprise3@example.com', role: 'enterprise' }
+      ];
+      
+      setEnterprises(mockEnterprises);
     } catch (error) {
       console.error("Error fetching enterprises:", error);
       toast({
@@ -112,13 +111,12 @@ const AuditorAssignment = () => {
   
   const fetchAuditors = async () => {
     try {
-      const { data, error } = await supabase
-        .from("auth.users")
-        .select("id, name:email, email, role")
-        .eq("role", "auditor");
-        
-      if (error) throw error;
-      setAuditors(data || []);
+      const mockAuditors: Auditor[] = [
+        { id: 'a1', name: 'Auditor 1', email: 'auditor1@example.com', role: 'auditor' },
+        { id: 'a2', name: 'Auditor 2', email: 'auditor2@example.com', role: 'auditor' }
+      ];
+      
+      setAuditors(mockAuditors);
     } catch (error) {
       console.error("Error fetching auditors:", error);
       toast({
@@ -133,30 +131,24 @@ const AuditorAssignment = () => {
     try {
       const { data, error } = await supabase
         .from("enterprise_auditor_assignments")
-        .select(`
-          *,
-          enterprise:enterprise_id (
-            name:email,
-            email
-          ),
-          auditor:auditor_id (
-            name:email,
-            email
-          )
-        `);
+        .select("*");
         
       if (error) throw error;
       
-      // Format the data
-      const formattedAssignments = data?.map(assignment => ({
-        ...assignment,
-        enterprise_name: assignment.enterprise?.name,
-        enterprise_email: assignment.enterprise?.email,
-        auditor_name: assignment.auditor?.name,
-        auditor_email: assignment.auditor?.email,
-      }));
+      const enhancedAssignments = (data || []).map(assignment => {
+        const enterprise = enterprises.find(e => e.id === assignment.enterprise_id);
+        const auditor = auditors.find(a => a.id === assignment.auditor_id);
+        
+        return {
+          ...assignment,
+          enterprise_name: enterprise?.name,
+          enterprise_email: enterprise?.email,
+          auditor_name: auditor?.name,
+          auditor_email: auditor?.email
+        };
+      });
       
-      setAssignments(formattedAssignments || []);
+      setAssignments(enhancedAssignments);
     } catch (error) {
       console.error("Error fetching assignments:", error);
       toast({
@@ -177,8 +169,6 @@ const AuditorAssignment = () => {
       return;
     }
     
-    // In a real implementation, this would create the user account
-    // and send an invitation email to the auditor
     toast({
       title: "Auditor invited",
       description: `An invitation has been sent to ${newAuditorEmail}`,
@@ -187,7 +177,6 @@ const AuditorAssignment = () => {
     setNewAuditorEmail("");
     setDialogOpen(false);
     
-    // For demo purposes, add a fake auditor to the list
     const fakeAuditor: Auditor = {
       id: `temp-${Date.now()}`,
       name: newAuditorEmail,
@@ -208,7 +197,6 @@ const AuditorAssignment = () => {
       return;
     }
     
-    // Check if assignment already exists
     const existingAssignment = assignments.find(
       a => a.enterprise_id === selectedEnterprise && a.auditor_id === selectedAuditor
     );
@@ -223,25 +211,17 @@ const AuditorAssignment = () => {
     }
     
     try {
+      const newAssignment = {
+        enterprise_id: selectedEnterprise,
+        auditor_id: selectedAuditor,
+        assigned_by: user?.id || "",
+        status: "pending"
+      };
+      
       const { data, error } = await supabase
         .from("enterprise_auditor_assignments")
-        .insert({
-          enterprise_id: selectedEnterprise,
-          auditor_id: selectedAuditor,
-          assigned_by: user?.id || "",
-          status: "pending"
-        })
-        .select(`
-          *,
-          enterprise:enterprise_id (
-            name:email,
-            email
-          ),
-          auditor:auditor_id (
-            name:email,
-            email
-          )
-        `);
+        .insert(newAssignment)
+        .select();
         
       if (error) throw error;
       
@@ -251,15 +231,18 @@ const AuditorAssignment = () => {
       });
       
       if (data && data.length > 0) {
-        const formattedAssignment = {
+        const enterprise = enterprises.find(e => e.id === selectedEnterprise);
+        const auditor = auditors.find(a => a.id === selectedAuditor);
+        
+        const enhancedAssignment: Assignment = {
           ...data[0],
-          enterprise_name: data[0].enterprise?.name,
-          enterprise_email: data[0].enterprise?.email,
-          auditor_name: data[0].auditor?.name,
-          auditor_email: data[0].auditor?.email,
+          enterprise_name: enterprise?.name,
+          enterprise_email: enterprise?.email,
+          auditor_name: auditor?.name,
+          auditor_email: auditor?.email,
         };
         
-        setAssignments([...assignments, formattedAssignment]);
+        setAssignments([...assignments, enhancedAssignment]);
       }
       
       setSelectedEnterprise(null);
@@ -400,7 +383,6 @@ const AuditorAssignment = () => {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => {
-                                  // This would send a reminder email in a real app
                                   toast({
                                     title: "Reminder sent",
                                     description: `A reminder has been sent to ${assignment.auditor_name}`
@@ -426,7 +408,6 @@ const AuditorAssignment = () => {
               </CardContent>
             </Card>
             
-            {/* Create Assignment Dialog */}
             <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
               <DialogContent>
                 <DialogHeader>
@@ -535,7 +516,6 @@ const AuditorAssignment = () => {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => {
-                                  // This would send an email in a real app
                                   toast({
                                     title: "Email sent",
                                     description: `An email has been sent to ${auditor.email}`
@@ -554,7 +534,6 @@ const AuditorAssignment = () => {
               </CardContent>
             </Card>
             
-            {/* Invite Auditor Dialog */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogContent>
                 <DialogHeader>

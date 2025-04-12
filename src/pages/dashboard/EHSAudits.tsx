@@ -1,95 +1,81 @@
-
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { 
+  ClipboardCheck, 
+  AlertCircle, 
+  Calendar, 
+  CheckCircle, 
+  Clock, 
+  FileText 
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { 
-  ClipboardCheck, 
-  FileText, 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle,
-  Calendar,
-  User,
-  Info,
-  FileQuestion,
-} from "lucide-react";
 
 interface EHSAudit {
   id: string;
-  enterprise_id: string;
-  auditor_id: string | null;
-  template_id: string | null;
   status: string;
-  audit_date: string | null;
+  audit_date: string;
   completion_date: string | null;
   total_score: number | null;
   max_score: number | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-  template?: {
+  template: {
     title: string;
-    industry_category: string;
+    description: string;
   };
-  auditor?: {
+  auditor: {
     name: string;
     email: string;
-  };
+  } | null;
 }
 
-interface AuditQuestion {
+interface ChecklistQuestion {
   id: string;
   question_text: string;
   category: string;
-  iso_standard: string | null;
+  iso_standard: string;
   weightage: number;
-  response?: {
-    id: string;
-    response: string;
-    score: number | null;
-    non_conformance_description: string | null;
-    action_required: string | null;
-    action_deadline: string | null;
-    action_taken: string | null;
-    action_status: string | null;
-    action_status_date: string | null;
-    updated_by: string | null;
-  };
 }
 
-interface CategoryQuestions {
-  [category: string]: AuditQuestion[];
+interface AuditResponse {
+  id: string;
+  question_id: string;
+  response: string;
+  score: number | null;
+  non_conformance_description: string | null;
+  action_required: string | null;
+  action_deadline: string | null;
+  action_taken: string | null;
+  action_status: string;
 }
 
 const EHSAudits = () => {
@@ -97,604 +83,490 @@ const EHSAudits = () => {
   const { toast } = useToast();
   const [audits, setAudits] = useState<EHSAudit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAudit, setSelectedAudit] = useState<string | null>(null);
-  const [auditQuestions, setAuditQuestions] = useState<CategoryQuestions>({});
-  const [selectedQuestion, setSelectedQuestion] = useState<AuditQuestion | null>(null);
-  const [actionResponse, setActionResponse] = useState({
-    action_taken: "",
-    action_status: "in_progress", // or closed
-  });
-  const [actionDialogOpen, setActionDialogOpen] = useState(false);
-
+  const [selectedAudit, setSelectedAudit] = useState<EHSAudit | null>(null);
+  const [auditQuestions, setAuditQuestions] = useState<ChecklistQuestion[]>([]);
+  const [auditResponses, setAuditResponses] = useState<AuditResponse[]>([]);
+  const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+  
   useEffect(() => {
     if (user?.id) {
       fetchAudits();
     }
-  }, [user?.id]);
-
-  useEffect(() => {
-    if (selectedAudit) {
-      fetchAuditQuestions(selectedAudit);
-    }
-  }, [selectedAudit]);
-
+  }, [user]);
+  
   const fetchAudits = async () => {
-    if (!user?.id) return;
-
+    setLoading(true);
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from("enterprise_ehs_audits")
         .select(`
           *,
           template:template_id (
             title,
-            industry_category
-          ),
-          auditor:auditor_id (
-            name:email, 
-            email
+            description
           )
         `)
-        .eq("enterprise_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setAudits(data || []);
+        .eq('enterprise_id', user!.id);
       
-      if (data && data.length > 0 && !selectedAudit) {
-        setSelectedAudit(data[0].id);
-      }
+      if (error) throw error;
+      
+      // Since we can't directly query the auth.users table,
+      // we'll use dummy auditor data for now
+      const auditsWithAuditors = data?.map(audit => ({
+        ...audit,
+        auditor: audit.auditor_id 
+          ? { name: "EHS Auditor", email: "auditor@example.com" } 
+          : null
+      }));
+      
+      setAudits(auditsWithAuditors || []);
     } catch (error) {
       console.error("Error fetching audits:", error);
       toast({
-        title: "Error",
-        description: "Failed to load audits. Please try again later.",
+        title: "Failed to load audits",
+        description: "There was a problem loading your EHS audits",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
-
-  const fetchAuditQuestions = async (auditId: string) => {
+  
+  const fetchAuditDetails = async (audit: EHSAudit) => {
+    setSelectedAudit(audit);
+    setViewDetailsOpen(true);
+    
     try {
-      const { data, error } = await supabase
+      // Load the checklist questions for this template
+      const { data: questionsData, error: questionsError } = await supabase
         .from("ehs_checklist_questions")
-        .select(`
-          *,
-          response:enterprise_audit_responses!inner (
-            id,
-            response,
-            score,
-            non_conformance_description,
-            action_required,
-            action_deadline,
-            action_taken,
-            action_status,
-            action_status_date,
-            updated_by
-          )
-        `)
-        .eq("response.audit_id", auditId);
-
-      if (error) throw error;
-
-      // Organize questions by category
-      const questionsByCategory: CategoryQuestions = {};
+        .select("*")
+        .eq("template_id", audit.template?.id);
+        
+      if (questionsError) throw questionsError;
+      setAuditQuestions(questionsData || []);
       
-      if (data) {
-        data.forEach(item => {
-          const category = item.category || 'Uncategorized';
-          
-          if (!questionsByCategory[category]) {
-            questionsByCategory[category] = [];
-          }
-          
-          questionsByCategory[category].push({
-            id: item.id,
-            question_text: item.question_text,
-            category: item.category,
-            iso_standard: item.iso_standard,
-            weightage: item.weightage,
-            response: item.response.length > 0 ? item.response[0] : undefined
-          });
-        });
-      }
-      
-      setAuditQuestions(questionsByCategory);
-    } catch (error) {
-      console.error("Error fetching audit questions:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load audit details. Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUpdateAction = async () => {
-    if (!selectedQuestion?.response?.id) {
-      toast({
-        title: "Error",
-        description: "No response selected for update",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
+      // Load the audit responses
+      const { data: responsesData, error: responsesError } = await supabase
         .from("enterprise_audit_responses")
-        .update({
-          action_taken: actionResponse.action_taken,
-          action_status: actionResponse.action_status,
-          action_status_date: new Date().toISOString(),
-          updated_by: user?.id
-        })
-        .eq("id", selectedQuestion.response.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Action response updated successfully",
-      });
-
-      // Update local state
-      if (selectedAudit) {
-        fetchAuditQuestions(selectedAudit);
-      }
-
-      setActionDialogOpen(false);
+        .select("*")
+        .eq("audit_id", audit.id);
+        
+      if (responsesError) throw responsesError;
+      setAuditResponses(responsesData || []);
+      
     } catch (error) {
-      console.error("Error updating action response:", error);
+      console.error("Error fetching audit details:", error);
       toast({
-        title: "Error",
-        description: "Failed to update action. Please try again.",
+        title: "Error loading audit details",
+        description: "There was a problem retrieving the audit information",
         variant: "destructive",
       });
     }
   };
-
-  const openActionDialog = (question: AuditQuestion) => {
-    setSelectedQuestion(question);
-    setActionResponse({
-      action_taken: question.response?.action_taken || "",
-      action_status: question.response?.action_status as "in_progress" | "closed" || "in_progress",
-    });
-    setActionDialogOpen(true);
-  };
-
+  
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "planned":
         return <Badge variant="outline">Planned</Badge>;
       case "in_progress":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100/80">In Progress</Badge>;
+        return <Badge variant="secondary">In Progress</Badge>;
       case "completed":
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100/80">Completed</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100/80">Completed</Badge>;
       case "reviewed":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100/80">Reviewed</Badge>;
+        return <Badge variant="default">Reviewed</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
   };
-
+  
   const getResponseBadge = (response: string) => {
     switch (response) {
       case "compliant":
-        return (
-          <div className="flex items-center">
-            <CheckCircle className="h-4 w-4 mr-1 text-green-600" />
-            <span>Compliant</span>
-          </div>
-        );
+        return <Badge className="bg-green-100 text-green-800">Compliant</Badge>;
       case "non_compliant":
-        return (
-          <div className="flex items-center">
-            <XCircle className="h-4 w-4 mr-1 text-red-600" />
-            <span>Non-compliant</span>
-          </div>
-        );
+        return <Badge variant="destructive">Non-Compliant</Badge>;
       case "partial":
-        return (
-          <div className="flex items-center">
-            <AlertCircle className="h-4 w-4 mr-1 text-amber-600" />
-            <span>Partial</span>
-          </div>
-        );
+        return <Badge variant="secondary">Partial</Badge>;
+      case "not_applicable":
+        return <Badge variant="outline">N/A</Badge>;
       default:
-        return <span>{response}</span>;
+        return <Badge variant="secondary">{response}</Badge>;
     }
   };
-
-  const getActionStatusBadge = (status: string | null) => {
-    if (!status) return null;
-    
+  
+  const getActionStatusBadge = (status: string) => {
     switch (status) {
       case "open":
-        return <Badge variant="outline">Open</Badge>;
+        return <Badge variant="destructive">Open</Badge>;
       case "in_progress":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100/80">In Progress</Badge>;
+        return <Badge variant="secondary">In Progress</Badge>;
       case "closed":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100/80">Closed</Badge>;
+        return <Badge className="bg-green-100 text-green-800">Closed</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
   };
-
-  const calculateAuditScore = (audit: EHSAudit) => {
-    if (audit.total_score === null || audit.max_score === null || audit.max_score === 0) {
-      return "N/A";
+  
+  const handleUpdateActionTaken = async (responseId: string, actionTaken: string, actionStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from("enterprise_audit_responses")
+        .update({ 
+          action_taken: actionTaken,
+          action_status: actionStatus,
+          action_status_date: new Date().toISOString()
+        })
+        .eq("id", responseId);
+        
+      if (error) throw error;
+      
+      // Update local state
+      setAuditResponses(auditResponses.map(response => 
+        response.id === responseId 
+          ? { ...response, action_taken: actionTaken, action_status: actionStatus } 
+          : response
+      ));
+      
+      toast({
+        title: "Action updated",
+        description: "Your response has been recorded",
+      });
+    } catch (error) {
+      console.error("Error updating action:", error);
+      toast({
+        title: "Failed to update",
+        description: "There was a problem saving your response",
+        variant: "destructive",
+      });
     }
+  };
+
+  // Calculate compliance status
+  const calculateComplianceStatus = (audit: EHSAudit) => {
+    if (!audit.total_score || !audit.max_score) return "N/A";
     
-    const percentage = (audit.total_score / audit.max_score) * 100;
-    return `${percentage.toFixed(1)}%`;
+    const compliancePercentage = (audit.total_score / audit.max_score) * 100;
+    if (compliancePercentage >= 90) return "High";
+    if (compliancePercentage >= 75) return "Medium";
+    return "Low";
   };
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">EHS Audits</h1>
-          <p className="text-muted-foreground">
-            Manage and respond to your environmental health & safety audits
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">EHS Audits</h1>
+            <p className="text-muted-foreground">
+              View and manage your Environmental, Health, and Safety audits
+            </p>
+          </div>
+          <Button>
+            <ClipboardCheck className="mr-2 h-4 w-4" />
+            Request New Audit
+          </Button>
         </div>
 
-        <Tabs defaultValue="list">
-          <TabsList>
-            <TabsTrigger value="list">Audit List</TabsTrigger>
-            <TabsTrigger value="detail">Audit Detail</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="list">
-            <Card>
-              <CardHeader>
-                <CardTitle>Your EHS Audits</CardTitle>
-                <CardDescription>
-                  View and manage audits conducted by assigned EHS auditors
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="py-8 text-center">Loading audits...</div>
-                ) : audits.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p className="text-muted-foreground">No audits available.</p>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <p>Loading audits...</p>
+          </div>
+        ) : audits.length === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>No Audits Found</CardTitle>
+              <CardDescription>
+                You don't have any EHS audits scheduled or completed yet.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <AlertCircle className="h-12 w-12 text-muted-foreground" />
+                <p className="text-center text-muted-foreground">
+                  Request a new EHS audit to assess your compliance with environmental, health, and safety standards.
+                </p>
+                <Button>
+                  <ClipboardCheck className="mr-2 h-4 w-4" />
+                  Request New Audit
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {audits.map((audit) => (
+              <Card key={audit.id} className="overflow-hidden">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{audit.template?.title || "EHS Audit"}</CardTitle>
+                    {getStatusBadge(audit.status)}
+                  </div>
+                  <CardDescription className="line-clamp-2">
+                    {audit.template?.description || "Environmental, Health, and Safety audit"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="space-y-3">
+                    <div className="flex items-center text-sm">
+                      <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span>
+                        {audit.audit_date 
+                          ? format(new Date(audit.audit_date), "PPP") 
+                          : "Date not set"}
+                      </span>
+                    </div>
+                    
+                    {audit.auditor && (
+                      <div className="flex items-center text-sm">
+                        <ClipboardCheck className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>Auditor: {audit.auditor.name}</span>
+                      </div>
+                    )}
+                    
+                    {audit.status === "completed" && (
+                      <div className="flex items-center text-sm">
+                        <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>
+                          Compliance: {calculateComplianceStatus(audit)}
+                          {audit.total_score !== null && audit.max_score !== null && (
+                            <span className="ml-1 text-xs text-muted-foreground">
+                              ({audit.total_score}/{audit.max_score})
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {audit.completion_date && (
+                      <div className="flex items-center text-sm">
+                        <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>
+                          Completed: {format(new Date(audit.completion_date), "PPP")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => fetchAuditDetails(audit)}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    View Details
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
+        
+        {/* Audit Details Dialog */}
+        <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            {selectedAudit && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{selectedAudit.template?.title || "EHS Audit Details"}</DialogTitle>
+                  <DialogDescription>
+                    {selectedAudit.template?.description || "Environmental, Health, and Safety audit details"}
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="grid grid-cols-2 gap-4 py-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Status</p>
+                    <div>{getStatusBadge(selectedAudit.status)}</div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Audit Date</p>
                     <p className="text-sm">
-                      Audits will appear here once they are scheduled by an EHS auditor.
+                      {selectedAudit.audit_date 
+                        ? format(new Date(selectedAudit.audit_date), "PPP") 
+                        : "Not scheduled"}
                     </p>
                   </div>
-                ) : (
-                  <div className="overflow-x-auto">
+                  
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Auditor</p>
+                    <p className="text-sm">
+                      {selectedAudit.auditor?.name || "Not assigned"}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Completion Date</p>
+                    <p className="text-sm">
+                      {selectedAudit.completion_date 
+                        ? format(new Date(selectedAudit.completion_date), "PPP") 
+                        : "Not completed"}
+                    </p>
+                  </div>
+                  
+                  {selectedAudit.status === "completed" && (
+                    <>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">Score</p>
+                        <p className="text-sm">
+                          {selectedAudit.total_score !== null && selectedAudit.max_score !== null
+                            ? `${selectedAudit.total_score}/${selectedAudit.max_score}`
+                            : "Not scored"}
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">Compliance Level</p>
+                        <p className="text-sm">
+                          {calculateComplianceStatus(selectedAudit)}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                <div className="border-t pt-4">
+                  <h3 className="font-medium mb-2">Audit Checklist</h3>
+                  
+                  {auditQuestions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No checklist items available</p>
+                  ) : (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Audit Template</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Auditor</TableHead>
-                          <TableHead>Score</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
+                          <TableHead>Question</TableHead>
+                          <TableHead>Category</TableHead>
+                          <TableHead>Response</TableHead>
+                          <TableHead>Action Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {audits.map((audit) => (
-                          <TableRow key={audit.id}>
-                            <TableCell className="font-medium">
-                              {audit.template?.title || "Unknown Template"}
-                            </TableCell>
-                            <TableCell>{getStatusBadge(audit.status)}</TableCell>
-                            <TableCell>
-                              {audit.audit_date 
-                                ? new Date(audit.audit_date).toLocaleDateString() 
-                                : "Not scheduled"}
-                            </TableCell>
-                            <TableCell>{audit.auditor?.name || "Not assigned"}</TableCell>
-                            <TableCell>{calculateAuditScore(audit)}</TableCell>
-                            <TableCell className="text-right">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => setSelectedAudit(audit.id)}
-                              >
-                                <FileText className="h-4 w-4 mr-2" />
-                                View
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {auditQuestions.map((question) => {
+                          const response = auditResponses.find(r => r.question_id === question.id);
+                          
+                          return (
+                            <TableRow key={question.id}>
+                              <TableCell className="font-medium">
+                                {question.question_text}
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {question.iso_standard}
+                                </div>
+                              </TableCell>
+                              <TableCell>{question.category}</TableCell>
+                              <TableCell>
+                                {response 
+                                  ? getResponseBadge(response.response)
+                                  : <Badge variant="outline">Not Assessed</Badge>}
+                              </TableCell>
+                              <TableCell>
+                                {response && response.response === "non_compliant" ? (
+                                  <div className="space-y-1">
+                                    {getActionStatusBadge(response.action_status || "open")}
+                                    {response.action_required && (
+                                      <div className="text-xs mt-1">
+                                        <span className="font-medium">Required: </span>
+                                        {response.action_required}
+                                      </div>
+                                    )}
+                                    {response.action_deadline && (
+                                      <div className="text-xs">
+                                        <span className="font-medium">Deadline: </span>
+                                        {format(new Date(response.action_deadline), "PPP")}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">N/A</span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="detail">
-            {!selectedAudit ? (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <p className="text-muted-foreground">No audit selected.</p>
-                  <p className="text-sm">Please select an audit from the list to view its details.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                {audits.find(a => a.id === selectedAudit) && (
-                  <Card className="mb-6">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle>
-                            {audits.find(a => a.id === selectedAudit)?.template?.title || "Audit"}
-                          </CardTitle>
-                          <CardDescription>
-                            {audits.find(a => a.id === selectedAudit)?.template?.industry_category || "Unknown category"}
-                          </CardDescription>
-                        </div>
-                        <div>
-                          {getStatusBadge(audits.find(a => a.id === selectedAudit)?.status || 'planned')}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            <span>Audit Date</span>
-                          </div>
-                          <p className="font-medium">
-                            {audits.find(a => a.id === selectedAudit)?.audit_date 
-                              ? new Date(audits.find(a => a.id === selectedAudit)?.audit_date as string).toLocaleDateString() 
-                              : "Not scheduled"}
-                          </p>
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <User className="h-4 w-4 mr-1" />
-                            <span>Auditor</span>
-                          </div>
-                          <p className="font-medium">
-                            {audits.find(a => a.id === selectedAudit)?.auditor?.name || "Not assigned"}
-                          </p>
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <ClipboardCheck className="h-4 w-4 mr-1" />
-                            <span>Score</span>
-                          </div>
-                          <p className="font-medium">
-                            {calculateAuditScore(audits.find(a => a.id === selectedAudit) as EHSAudit)}
-                          </p>
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Info className="h-4 w-4 mr-1" />
-                            <span>Completion Date</span>
-                          </div>
-                          <p className="font-medium">
-                            {audits.find(a => a.id === selectedAudit)?.completion_date 
-                              ? new Date(audits.find(a => a.id === selectedAudit)?.completion_date as string).toLocaleDateString() 
-                              : "Not completed"}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {audits.find(a => a.id === selectedAudit)?.notes && (
-                        <div className="mt-4 p-3 bg-muted rounded-md text-sm">
-                          <div className="font-medium mb-1">Auditor Notes:</div>
-                          {audits.find(a => a.id === selectedAudit)?.notes}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-                
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold flex items-center">
-                    <FileQuestion className="h-5 w-5 mr-2" />
-                    Audit Checklist & Non-Conformances
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Review findings and provide responses to required actions
-                  </p>
+                  )}
                 </div>
                 
-                {Object.keys(auditQuestions).length === 0 ? (
-                  <Card>
-                    <CardContent className="py-8 text-center">
-                      <p className="text-muted-foreground">No checklist data available.</p>
-                      <p className="text-sm">
-                        The audit checklist will appear once the auditor has started the assessment.
-                      </p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div className="space-y-4">
-                    <Accordion type="single" collapsible className="w-full">
-                      {Object.keys(auditQuestions).map((category) => (
-                        <AccordionItem key={category} value={category}>
-                          <AccordionTrigger className="font-medium">
-                            {category} ({auditQuestions[category].length} items)
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="space-y-4">
-                              {auditQuestions[category].map((question) => (
-                                <Card key={question.id} className={
-                                  question.response?.response === 'non_compliant' 
-                                    ? 'border-red-200 bg-red-50/50' 
-                                    : question.response?.response === 'partial'
-                                    ? 'border-amber-200 bg-amber-50/50'
-                                    : ''
-                                }>
-                                  <CardContent className="p-4 space-y-3">
-                                    <div className="flex justify-between items-start gap-4">
-                                      <h3 className="font-medium">
-                                        {question.question_text}
-                                      </h3>
-                                      {question.response && (
-                                        <div>
-                                          {getResponseBadge(question.response.response)}
-                                        </div>
-                                      )}
-                                    </div>
-                                    
-                                    <div className="flex items-center text-xs text-muted-foreground gap-4">
-                                      {question.iso_standard && (
-                                        <div className="px-2 py-1 bg-muted rounded">
-                                          {question.iso_standard}
-                                        </div>
-                                      )}
-                                      <div>
-                                        Weightage: {question.weightage}
-                                      </div>
-                                    </div>
-                                    
-                                    {(question.response?.response === 'non_compliant' || 
-                                       question.response?.response === 'partial') && 
-                                     question.response?.non_conformance_description && (
-                                      <div className="bg-background p-3 rounded-md border">
-                                        <div className="font-medium text-sm">Non-Conformance:</div>
-                                        <p className="text-sm mt-1">
-                                          {question.response.non_conformance_description}
-                                        </p>
+                {selectedAudit.status === "completed" && (
+                  <div className="border-t pt-4">
+                    <h3 className="font-medium mb-2">Non-Conformances & Actions</h3>
+                    
+                    {auditResponses.filter(r => r.response === "non_compliant").length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No non-conformances found</p>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Finding</TableHead>
+                            <TableHead>Required Action</TableHead>
+                            <TableHead>Deadline</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Action Taken</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {auditResponses
+                            .filter(r => r.response === "non_compliant")
+                            .map((response) => {
+                              const question = auditQuestions.find(q => q.question_id === response.question_id);
+                              
+                              return (
+                                <TableRow key={response.id}>
+                                  <TableCell>
+                                    {question?.question_text || "Unknown question"}
+                                    {response.non_conformance_description && (
+                                      <div className="text-xs mt-1">
+                                        {response.non_conformance_description}
                                       </div>
                                     )}
-                                    
-                                    {question.response?.action_required && (
-                                      <div className="mt-2 space-y-2">
-                                        <div className="bg-background p-3 rounded-md border space-y-2">
-                                          <div className="font-medium text-sm">Required Action:</div>
-                                          <p className="text-sm">
-                                            {question.response.action_required}
-                                          </p>
-                                          
-                                          {question.response.action_deadline && (
-                                            <div className="flex items-center text-xs text-muted-foreground">
-                                              <Calendar className="h-3 w-3 mr-1" />
-                                              <span>
-                                                Due by: {new Date(question.response.action_deadline).toLocaleDateString()}
-                                              </span>
-                                            </div>
-                                          )}
-                                        </div>
-                                        
-                                        <div className="flex justify-between items-center">
-                                          <div className="text-sm">
-                                            Status: {getActionStatusBadge(question.response.action_status)}
-                                          </div>
-                                          
-                                          <Button
-                                            size="sm"
-                                            onClick={() => openActionDialog(question)}
-                                            disabled={question.response?.action_status === 'closed'}
-                                          >
-                                            {question.response?.action_taken
-                                              ? "Update Response"
-                                              : "Add Response"}
-                                          </Button>
-                                        </div>
-                                        
-                                        {question.response?.action_taken && (
-                                          <div className="bg-muted/50 p-3 rounded-md">
-                                            <div className="font-medium text-sm">Your Response:</div>
-                                            <p className="text-sm mt-1">
-                                              {question.response.action_taken}
-                                            </p>
-                                            
-                                            {question.response.action_status_date && (
-                                              <div className="text-xs text-muted-foreground mt-1">
-                                                Updated: {new Date(question.response.action_status_date).toLocaleString()}
-                                              </div>
-                                            )}
-                                          </div>
-                                        )}
-                                      </div>
+                                  </TableCell>
+                                  <TableCell>{response.action_required || "No action specified"}</TableCell>
+                                  <TableCell>
+                                    {response.action_deadline 
+                                      ? format(new Date(response.action_deadline), "PPP")
+                                      : "No deadline"}
+                                  </TableCell>
+                                  <TableCell>{getActionStatusBadge(response.action_status || "open")}</TableCell>
+                                  <TableCell>
+                                    {response.action_taken || (
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => {
+                                          // In a real app, this would open a dialog to update the action
+                                          const actionTaken = prompt("Enter the action taken:");
+                                          if (actionTaken) {
+                                            handleUpdateActionTaken(response.id, actionTaken, "closed");
+                                          }
+                                        }}
+                                      >
+                                        Add Response
+                                      </Button>
                                     )}
-                                  </CardContent>
-                                </Card>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                        </TableBody>
+                      </Table>
+                    )}
                   </div>
                 )}
+                
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setViewDetailsOpen(false)}>
+                    Close
+                  </Button>
+                  {selectedAudit.status === "completed" && (
+                    <Button>
+                      Download Report
+                    </Button>
+                  )}
+                </DialogFooter>
               </>
             )}
-          </TabsContent>
-        </Tabs>
-
-        <Dialog open={actionDialogOpen} onOpenChange={setActionDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Update Action Response</DialogTitle>
-              <DialogDescription>
-                Provide details about the corrective action you've taken.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="actionTaken">Action Taken</Label>
-                <Textarea
-                  id="actionTaken"
-                  value={actionResponse.action_taken}
-                  onChange={(e) => setActionResponse({
-                    ...actionResponse,
-                    action_taken: e.target.value
-                  })}
-                  placeholder="Describe the corrective action you've implemented..."
-                  rows={5}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Action Status</Label>
-                <div className="flex gap-4">
-                  <Button
-                    type="button"
-                    variant={actionResponse.action_status === 'in_progress' ? 'default' : 'outline'}
-                    onClick={() => setActionResponse({
-                      ...actionResponse,
-                      action_status: 'in_progress'
-                    })}
-                    className="flex-1"
-                  >
-                    In Progress
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={actionResponse.action_status === 'closed' ? 'default' : 'outline'}
-                    onClick={() => setActionResponse({
-                      ...actionResponse,
-                      action_status: 'closed'
-                    })}
-                    className="flex-1"
-                  >
-                    Completed
-                  </Button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setActionDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleUpdateAction}>
-                Save Response
-              </Button>
-            </div>
           </DialogContent>
         </Dialog>
       </div>

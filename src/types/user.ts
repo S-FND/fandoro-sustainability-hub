@@ -5,7 +5,8 @@ export type UserRole =
   | 'investor' 
   | 'supplier' 
   | 'partner' 
-  | 'employee';
+  | 'employee'
+  | 'auditor';
 
 export type RevenueRange = 
   | 'upto_1_crore'
@@ -46,4 +47,10 @@ export interface EmployeeUser extends User {
 
 export interface FandoroAdmin extends User {
   role: 'fandoro_admin';
+}
+
+export interface AuditorUser extends User {
+  role: 'auditor';
+  specialization?: string;
+  certifications?: string[];
 }
