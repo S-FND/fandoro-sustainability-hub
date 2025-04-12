@@ -64,10 +64,13 @@ export const GHGEmissionsForm = ({ scopeType, industryCategory }: GHGEmissionsFo
     setIsSubmitting(true);
 
     try {
-      // Convert emission_value to number
+      // Convert emission_value to number and format dates as strings
       const formattedData = {
-        ...data,
+        emission_source: data.emission_source,
         emission_value: parseFloat(data.emission_value),
+        emission_unit: data.emission_unit,
+        reporting_period_start: data.reporting_period_start.toISOString().split('T')[0],
+        reporting_period_end: data.reporting_period_end.toISOString().split('T')[0],
         enterprise_id: user.id,
         scope_type: scopeType,
         industry_category: industryCategory,
@@ -76,7 +79,7 @@ export const GHGEmissionsForm = ({ scopeType, industryCategory }: GHGEmissionsFo
       // Submit to Supabase
       const { error } = await supabase
         .from('enterprise_ghg_emissions')
-        .insert([formattedData]);
+        .insert(formattedData);
 
       if (error) throw error;
 

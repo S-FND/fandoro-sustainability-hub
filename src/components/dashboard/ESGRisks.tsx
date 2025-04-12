@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   CloudRain, 
-  UserAlert, 
+  AlertCircle, 
   Scale, 
   Building2 
 } from 'lucide-react';
@@ -51,7 +51,7 @@ export const ESGRisks = () => {
       case 'Environmental':
         return <CloudRain className="h-5 w-5 text-blue-500" />;
       case 'Social':
-        return <UserAlert className="h-5 w-5 text-purple-500" />;
+        return <AlertCircle className="h-5 w-5 text-purple-500" />;
       case 'Governance':
         return <Scale className="h-5 w-5 text-amber-500" />;
       default:

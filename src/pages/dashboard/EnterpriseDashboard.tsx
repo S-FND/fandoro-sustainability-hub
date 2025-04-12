@@ -7,7 +7,7 @@ import { ESGRisks } from "@/components/dashboard/ESGRisks";
 import { SDGProgress } from "@/components/dashboard/SDGProgress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { Building, CloudRain, Scale, UserAlert } from "lucide-react";
+import { Building, CloudRain, Scale, AlertCircle } from "lucide-react";
 
 const EnterpriseDashboard = () => {
   const { user } = useAuth();
@@ -42,7 +42,7 @@ const EnterpriseDashboard = () => {
           <Card>
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-sm font-medium">Social</CardTitle>
-              <UserAlert className="h-5 w-5 text-purple-500" />
+              <AlertCircle className="h-5 w-5 text-purple-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">68/100</div>
