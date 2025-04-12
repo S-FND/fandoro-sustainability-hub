@@ -111,12 +111,18 @@ const AuditorAssignment = () => {
   
   const fetchAuditors = async () => {
     try {
-      const mockAuditors: Auditor[] = [
-        { id: 'a1', name: 'Auditor 1', email: 'auditor1@example.com', role: 'auditor' },
-        { id: 'a2', name: 'Auditor 2', email: 'auditor2@example.com', role: 'auditor' }
-      ];
+      const { data, error } = await supabase
+        .from('ehs_auditors')
+        .select('id, name, email');
+
+      if (error) throw error;
       
-      setAuditors(mockAuditors);
+      setAuditors(data.map(auditor => ({
+        id: auditor.id,
+        name: auditor.name,
+        email: auditor.email,
+        role: 'auditor'
+      })) || []);
     } catch (error) {
       console.error("Error fetching auditors:", error);
       toast({
@@ -169,22 +175,42 @@ const AuditorAssignment = () => {
       return;
     }
     
-    toast({
-      title: "Auditor invited",
-      description: `An invitation has been sent to ${newAuditorEmail}`,
-    });
-    
-    setNewAuditorEmail("");
-    setDialogOpen(false);
-    
-    const fakeAuditor: Auditor = {
-      id: `temp-${Date.now()}`,
-      name: newAuditorEmail,
-      email: newAuditorEmail,
-      role: "auditor"
-    };
-    
-    setAuditors([...auditors, fakeAuditor]);
+    try {
+      const { data, error } = await supabase
+        .from('ehs_auditors')
+        .insert({
+          id: `temp-${Date.now()}`,
+          name: newAuditorEmail.split('@')[0],
+          email: newAuditorEmail
+        })
+        .select();
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Auditor invited",
+        description: `An invitation has been sent to ${newAuditorEmail}`,
+      });
+      
+      if (data) {
+        setAuditors([...auditors, {
+          id: data[0].id,
+          name: data[0].name,
+          email: data[0].email,
+          role: 'auditor'
+        }]);
+      }
+      
+      setNewAuditorEmail("");
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Error inviting auditor:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send invitation",
+        variant: "destructive",
+      });
+    }
   };
   
   const handleCreateAssignment = async () => {

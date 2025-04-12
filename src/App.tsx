@@ -29,6 +29,10 @@ import Scope3EmissionsPage from "./pages/dashboard/ghg/Scope3Emissions";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import EHSTemplates from "./pages/admin/EHSTemplates";
 import AuditorAssignment from "./pages/admin/AuditorAssignment";
+import EHSChecklist from "./pages/admin/EHSChecklist";
+
+// Auditor Pages
+import AuditorDashboard from "./pages/admin/auditor/AuditorDashboard";
 
 // Default & Error Pages
 import Index from "./pages/Index";
@@ -210,6 +214,25 @@ const App = () => (
                   <AuditorAssignment />
                 </ProtectedRoute>
               } 
+            />
+            
+            <Route 
+              path="/admin/ehs-checklist" 
+              element={
+                <ProtectedRoute allowedRoles={['fandoro_admin']}>
+                  <EHSChecklist />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Auditor Routes */}
+            <Route
+              path="/auditor/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['auditor']}>
+                  <AuditorDashboard />
+                </ProtectedRoute>
+              }
             />
             
             {/* Catchall route for 404 */}

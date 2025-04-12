@@ -9,6 +9,206 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ehs_audit_responses: {
+        Row: {
+          action_deadline: string | null
+          action_required: string | null
+          action_status:
+            | Database["public"]["Enums"]["action_status_type"]
+            | null
+          action_status_date: string | null
+          action_taken: string | null
+          audit_id: string
+          created_at: string
+          id: string
+          non_conformance_description: string | null
+          notes: string | null
+          question_id: string
+          response: Database["public"]["Enums"]["ehs_audit_response_type"]
+          score: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          action_deadline?: string | null
+          action_required?: string | null
+          action_status?:
+            | Database["public"]["Enums"]["action_status_type"]
+            | null
+          action_status_date?: string | null
+          action_taken?: string | null
+          audit_id: string
+          created_at?: string
+          id?: string
+          non_conformance_description?: string | null
+          notes?: string | null
+          question_id: string
+          response: Database["public"]["Enums"]["ehs_audit_response_type"]
+          score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          action_deadline?: string | null
+          action_required?: string | null
+          action_status?:
+            | Database["public"]["Enums"]["action_status_type"]
+            | null
+          action_status_date?: string | null
+          action_taken?: string | null
+          audit_id?: string
+          created_at?: string
+          id?: string
+          non_conformance_description?: string | null
+          notes?: string | null
+          question_id?: string
+          response?: Database["public"]["Enums"]["ehs_audit_response_type"]
+          score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ehs_audit_responses_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_audit_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ehs_audit_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_checklist_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ehs_audit_sessions: {
+        Row: {
+          audit_date: string
+          auditor_id: string
+          completion_date: string | null
+          created_at: string
+          enterprise_id: string
+          id: string
+          max_score: number | null
+          notes: string | null
+          status: string | null
+          template_id: string
+          total_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          audit_date: string
+          auditor_id: string
+          completion_date?: string | null
+          created_at?: string
+          enterprise_id: string
+          id?: string
+          max_score?: number | null
+          notes?: string | null
+          status?: string | null
+          template_id: string
+          total_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          audit_date?: string
+          auditor_id?: string
+          completion_date?: string | null
+          created_at?: string
+          enterprise_id?: string
+          id?: string
+          max_score?: number | null
+          notes?: string | null
+          status?: string | null
+          template_id?: string
+          total_score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ehs_audit_sessions_auditor_id_fkey"
+            columns: ["auditor_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_auditors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ehs_audit_sessions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ehs_auditor_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          auditor_id: string
+          enterprise_id: string
+          id: string
+          status: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          auditor_id: string
+          enterprise_id: string
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          auditor_id?: string
+          enterprise_id?: string
+          id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ehs_auditor_assignments_auditor_id_fkey"
+            columns: ["auditor_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_auditors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ehs_auditors: {
+        Row: {
+          certifications: string[] | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          specialization: string | null
+          updated_at: string
+        }
+        Insert: {
+          certifications?: string[] | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          specialization?: string | null
+          updated_at?: string
+        }
+        Update: {
+          certifications?: string[] | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          specialization?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ehs_checklist_questions: {
         Row: {
           category: string | null
@@ -85,6 +285,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ehs_question_overrides: {
+        Row: {
+          auditor_id: string
+          created_at: string
+          custom_question_text: string | null
+          custom_weightage: number | null
+          enterprise_id: string
+          id: string
+          question_id: string
+          updated_at: string
+        }
+        Insert: {
+          auditor_id: string
+          created_at?: string
+          custom_question_text?: string | null
+          custom_weightage?: number | null
+          enterprise_id: string
+          id?: string
+          question_id: string
+          updated_at?: string
+        }
+        Update: {
+          auditor_id?: string
+          created_at?: string
+          custom_question_text?: string | null
+          custom_weightage?: number | null
+          enterprise_id?: string
+          id?: string
+          question_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ehs_question_overrides_auditor_id_fkey"
+            columns: ["auditor_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_auditors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ehs_question_overrides_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "ehs_checklist_questions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       enterprise_ai_chats: {
         Row: {
@@ -666,6 +914,86 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_case_studies: {
+        Row: {
+          client_name: string
+          created_at: string
+          description: string
+          id: string
+          outcome: string | null
+          partner_id: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          client_name: string
+          created_at?: string
+          description: string
+          id?: string
+          outcome?: string | null
+          partner_id: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          client_name?: string
+          created_at?: string
+          description?: string
+          id?: string
+          outcome?: string | null
+          partner_id?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_case_studies_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          gst_number: string | null
+          id: string
+          organization_name: string
+          partner_type: string
+          profile_status: string
+          services_offered: string[] | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          gst_number?: string | null
+          id: string
+          organization_name: string
+          partner_type: string
+          profile_status?: string
+          services_offered?: string[] | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          gst_number?: string | null
+          id?: string
+          organization_name?: string
+          partner_type?: string
+          profile_status?: string
+          services_offered?: string[] | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -677,7 +1005,8 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      action_status_type: "open" | "in_progress" | "closed"
+      ehs_audit_response_type: "yes" | "no" | "partial" | "na"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -792,6 +1121,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      action_status_type: ["open", "in_progress", "closed"],
+      ehs_audit_response_type: ["yes", "no", "partial", "na"],
+    },
   },
 } as const
