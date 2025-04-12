@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { PartnerType } from "@/types/partner";
 
 const SERVICES = [
   { id: "esg_consultation", label: "ESG Consultation" },
@@ -59,7 +59,7 @@ const PartnerOnboarding = () => {
         address: address || null,
         website: website || null,
         services_offered: selectedServices,
-        partner_type: user?.partnerType || "solution_provider",
+        partner_type: user?.partnerType as PartnerType || "solution_provider",
       });
 
       if (error) throw error;

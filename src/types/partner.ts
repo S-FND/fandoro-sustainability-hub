@@ -1,4 +1,3 @@
-
 import { User } from "./user";
 
 export type PartnerType = 'solution_provider' | 'training_provider' | 'auditor';

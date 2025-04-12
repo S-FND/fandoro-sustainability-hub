@@ -1,4 +1,3 @@
-
 export type UserRole = 
   | 'fandoro_admin' 
   | 'enterprise' 
@@ -27,6 +26,7 @@ export interface User {
   name: string;
   organization?: string;
   phoneNumber?: string;
+  partnerType?: string; // Added partnerType property
 }
 
 export interface EnterpriseUser extends User {

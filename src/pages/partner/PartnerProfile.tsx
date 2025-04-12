@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { PartnerProfile as ProfileType, CaseStudy } from "@/types/partner";
+import { PartnerProfile as ProfileType, CaseStudy, PartnerType } from "@/types/partner";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Plus, Briefcase, Building, MapPin, Link, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +38,13 @@ const PartnerProfile = () => {
         }
         
         if (profileData) {
-          setProfile(profileData);
+          // Ensure partner_type is properly typed as PartnerType
+          const typedProfileData: ProfileType = {
+            ...profileData,
+            partner_type: profileData.partner_type as PartnerType
+          };
+          
+          setProfile(typedProfileData);
           
           // Fetch case studies
           const { data: caseStudiesData, error: caseStudiesError } = await supabase

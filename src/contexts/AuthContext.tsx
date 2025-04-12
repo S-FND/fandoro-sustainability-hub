@@ -1,7 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types/user";
-import { PartnerProfile } from "@/types/partner";
+import { PartnerProfile, PartnerType } from "@/types/partner";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType {
@@ -26,9 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Mock authentication for demo purposes
   useEffect(() => {
-    // Check if user is stored in localStorage
     const storedUser = localStorage.getItem('fandoro_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -39,16 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      // In a real app with Supabase, we would use:
-      // const { data, error } = await supabase.auth.signInWithPassword({
-      //   email, password
-      // });
-      // if (error) throw error;
-      // Then fetch profile data as needed
-      
-      // For demo purposes, we'll simulate a successful login
-      
-      // Create a mock user based on email domain for demo
       let mockUser: User;
       
       if (email.includes('fandoro.com')) {
@@ -110,7 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       }
       
-      // Set the user in state and localStorage
       setUser(mockUser);
       localStorage.setItem('fandoro_user', JSON.stringify(mockUser));
       
@@ -123,9 +109,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    // In a real app with Supabase, we would use:
-    // await supabase.auth.signOut();
-    
     setUser(null);
     localStorage.removeItem('fandoro_user');
   };
@@ -133,28 +116,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: any) => {
     try {
       setLoading(true);
-      // In a real app with Supabase, we would use:
-      // const { data, error } = await supabase.auth.signUp({
-      //   email: userData.email,
-      //   password: userData.password,
-      //   options: {
-      //     data: {
-      //       name: userData.name,
-      //       organization: userData.organization,
-      //       role: userData.role
-      //     }
-      //   }
-      // });
-      // if (error) throw error;
-      
-      // For demo purposes, we'll simulate a successful registration
-      
       const newUser = {
         id: Date.now().toString(),
         ...userData,
       };
       
-      // Set the user in state and localStorage
       setUser(newUser);
       localStorage.setItem('fandoro_user', JSON.stringify(newUser));
       
