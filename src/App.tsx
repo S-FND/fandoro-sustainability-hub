@@ -1,17 +1,18 @@
+
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { ThemeProvider } from "@/components/ui/theme-provider"
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "@/pages/Index";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
+import Login from "@/pages/auth/Login";
+import Register from "@/pages/auth/Register";
 import NotFound from "@/pages/NotFound";
 import EnterpriseDashboard from "@/pages/dashboard/EnterpriseDashboard";
 import GeneralDashboard from "@/pages/dashboard/GeneralDashboard";
 import CompliancesPage from "@/pages/dashboard/Compliances";
-import Scope1EmissionsPage from "@/pages/dashboard/Scope1Emissions";
-import Scope2EmissionsPage from "@/pages/dashboard/Scope2Emissions";
-import Scope3EmissionsPage from "@/pages/dashboard/Scope3Emissions";
+import Scope1EmissionsPage from "@/pages/dashboard/ghg/Scope1Emissions";
+import Scope2EmissionsPage from "@/pages/dashboard/ghg/Scope2Emissions";
+import Scope3EmissionsPage from "@/pages/dashboard/ghg/Scope3Emissions";
 import EHSAudits from "@/pages/dashboard/EHSAudits";
 import EHSTrainings from "@/pages/dashboard/EHSTrainings";
 import EnterpriseSetup from "@/pages/dashboard/EnterpriseSetup";
