@@ -23,7 +23,7 @@ import AuditorAssignment from "@/pages/admin/AuditorAssignment";
 import AuditorDashboard from "@/pages/auditor/AuditorDashboard";
 import Stakeholders from "@/pages/dashboard/Stakeholders";
 import Materiality from "@/pages/dashboard/Materiality";
-import EmployeeProfile from "@/pages/employee/Profile";
+import EmployeeProfile from "@/features/employee/pages/Profile";
 
 function App() {
   return (
@@ -40,7 +40,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               
-              {/* Dashboard */}
+              {/* Enterprise User Routes */}
               <Route path="/dashboard/enterprise" element={<EnterpriseDashboard />} />
               <Route path="/dashboard/general" element={<GeneralDashboard />} />
               <Route path="/dashboard/stakeholders" element={<Stakeholders />} />
@@ -53,16 +53,16 @@ function App() {
               <Route path="/dashboard/ehs-trainings" element={<EHSTrainings />} />
               <Route path="/dashboard/setup" element={<EnterpriseSetup />} />
               
-              {/* Admin */}
+              {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/ehs-templates" element={<EHSTemplates />} />
               <Route path="/admin/ehs-checklist" element={<EHSChecklist />} />
               <Route path="/admin/auditor-assignment" element={<AuditorAssignment />} />
               
-              {/* Auditor */}
+              {/* Auditor Routes */}
               <Route path="/auditor/dashboard" element={<AuditorDashboard />} />
               
-              {/* Employee */}
+              {/* Employee Routes */}
               <Route path="/employee/profile" element={<EmployeeProfile />} />
               
               {/* Catch All */}
