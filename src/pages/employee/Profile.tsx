@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ExternalLink, UserCircle, Landmark, Calendar, School, LineChart, Clock } from "lucide-react";
+import { ExternalLink, UserCircle, Landmark, Calendar, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { EmployeeKpiList } from "@/components/employee/EmployeeKpiList";
 import { EmployeeTrainingList } from "@/components/employee/EmployeeTrainingList";
