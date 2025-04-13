@@ -1,11 +1,11 @@
 
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { ThemeProvider } from "@/components/ui/theme-provider";
+import { ThemeProvider } from "./components/ui/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "@/pages/Index";
-import Login from "@/pages/auth/Login";
-import Register from "@/pages/auth/Register";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import NotFound from "@/pages/NotFound";
 import EnterpriseDashboard from "@/pages/dashboard/EnterpriseDashboard";
 import GeneralDashboard from "@/pages/dashboard/GeneralDashboard";
@@ -23,6 +23,7 @@ import AuditorAssignment from "@/pages/admin/AuditorAssignment";
 import AuditorDashboard from "@/pages/auditor/AuditorDashboard";
 import Stakeholders from "@/pages/dashboard/Stakeholders";
 import Materiality from "@/pages/dashboard/Materiality";
+import EmployeeProfile from "@/pages/employee/Profile";
 
 function App() {
   return (
@@ -60,6 +61,9 @@ function App() {
               
               {/* Auditor */}
               <Route path="/auditor/dashboard" element={<AuditorDashboard />} />
+              
+              {/* Employee */}
+              <Route path="/employee/profile" element={<EmployeeProfile />} />
               
               {/* Catch All */}
               <Route path="*" element={<NotFound />} />
