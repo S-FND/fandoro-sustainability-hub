@@ -12,6 +12,7 @@ import { ExternalLink, UserCircle, Landmark, Calendar, School, LineChart, Clock 
 import { useAuth } from "@/contexts/AuthContext";
 import { EmployeeKpiList } from "@/components/employee/EmployeeKpiList";
 import { EmployeeTrainingList } from "@/components/employee/EmployeeTrainingList";
+import { EmployeeUser } from "@/types/user";
 
 const EmployeeProfile = () => {
   const { user } = useAuth();
@@ -28,6 +29,9 @@ const EmployeeProfile = () => {
   if (!user) {
     return null;
   }
+
+  // Cast the user to EmployeeUser type
+  const employeeUser = user as EmployeeUser;
 
   return (
     <AppLayout>
@@ -64,11 +68,11 @@ const EmployeeProfile = () => {
               <div className="space-y-3">
                 <div className="flex items-center space-x-2 text-sm">
                   <Landmark className="h-4 w-4" />
-                  <span>Department: {user.department || "Not specified"}</span>
+                  <span>Department: {employeeUser.department || "Not specified"}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
                   <UserCircle className="h-4 w-4" />
-                  <span>Designation: {user.designation || "Not specified"}</span>
+                  <span>Designation: {employeeUser.designation || "Not specified"}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
                   <Calendar className="h-4 w-4" />
@@ -121,11 +125,11 @@ const EmployeeProfile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Department</h3>
-                        <p className="text-sm mt-1">{user.department || "Not specified"}</p>
+                        <p className="text-sm mt-1">{employeeUser.department || "Not specified"}</p>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Designation</h3>
-                        <p className="text-sm mt-1">{user.designation || "Not specified"}</p>
+                        <p className="text-sm mt-1">{employeeUser.designation || "Not specified"}</p>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Employee ID</h3>
@@ -133,7 +137,7 @@ const EmployeeProfile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium">Gender</h3>
-                        <p className="text-sm mt-1">{user.gender || "Not specified"}</p>
+                        <p className="text-sm mt-1">{employeeUser.gender || "Not specified"}</p>
                       </div>
                     </div>
 
@@ -143,7 +147,7 @@ const EmployeeProfile = () => {
                       <h3 className="text-sm font-medium mb-2">Enterprise Details</h3>
                       <div>
                         <h4 className="text-xs text-muted-foreground">Organization ID</h4>
-                        <p className="text-sm">{user.enterpriseId}</p>
+                        <p className="text-sm">{employeeUser.enterpriseId}</p>
                       </div>
                     </div>
                   </CardContent>

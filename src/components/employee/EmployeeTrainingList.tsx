@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,8 +10,22 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 
+type Training = {
+  id: string;
+  title: string;
+  description: string;
+  dueDate?: string;
+  status?: "not_started" | "in_progress" | "completed";
+  progress?: number;
+  assignedDate?: string;
+  completionDate?: string;
+  duration?: string;
+  type: string;
+  level?: string;
+};
+
 // Mock data for assigned trainings
-const assignedTrainings = [
+const assignedTrainings: Training[] = [
   {
     id: "1",
     title: "ESG Fundamentals",
@@ -57,7 +70,7 @@ const assignedTrainings = [
 ];
 
 // Mock data for available trainings
-const availableTrainings = [
+const availableTrainings: Training[] = [
   {
     id: "5",
     title: "Diversity & Inclusion Best Practices",
@@ -92,20 +105,6 @@ const availableTrainings = [
   },
 ];
 
-type Training = {
-  id: string;
-  title: string;
-  description: string;
-  dueDate?: string;
-  status?: "not_started" | "in_progress" | "completed";
-  progress?: number;
-  assignedDate?: string;
-  completionDate?: string;
-  duration?: string;
-  type: string;
-  level?: string;
-};
-
 export const EmployeeTrainingList = () => {
   const [trainings, setTrainings] = useState<Training[]>(assignedTrainings);
   const [availableCourses, setAvailableCourses] = useState<Training[]>(availableTrainings);
@@ -139,7 +138,7 @@ export const EmployeeTrainingList = () => {
     course.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: "not_started" | "in_progress" | "completed") => {
     switch (status) {
       case "completed":
         return (

@@ -10,8 +10,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertCircle, CheckCircle, Clock, Edit, LineChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+type KPI = {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  dueDate: string;
+  status: "pending" | "in_progress" | "completed";
+  value: string;
+  comments: string;
+};
+
 // Mock data for KPIs assigned to the employee
-const mockKpis = [
+const mockKpis: KPI[] = [
   {
     id: "1",
     name: "Carbon Footprint Reduction",
@@ -53,17 +64,6 @@ const mockKpis = [
     comments: "",
   },
 ];
-
-type KPI = {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  dueDate: string;
-  status: "pending" | "in_progress" | "completed";
-  value: string;
-  comments: string;
-};
 
 export const EmployeeKpiList = () => {
   const [kpis, setKpis] = useState<KPI[]>(mockKpis);
@@ -223,4 +223,57 @@ export const EmployeeKpiList = () => {
       </Dialog>
     </div>
   );
+};
+
+const handleEditKpi = (kpi: KPI) => {
+  setSelectedKpi(kpi);
+  setKpiValue(kpi.value);
+  setKpiComments(kpi.comments);
+  setDialogOpen(true);
+};
+
+const handleSaveKpi = () => {
+  if (!selectedKpi) return;
+
+  const updatedKpis = kpis.map(kpi => {
+    if (kpi.id === selectedKpi.id) {
+      return {
+        ...kpi,
+        status: kpiValue ? (kpi.status === "pending" ? "in_progress" : kpi.status) : kpi.status,
+        value: kpiValue,
+        comments: kpiComments
+      };
+    }
+    return kpi;
+  });
+
+  setKpis(updatedKpis);
+  setDialogOpen(false);
+  toast({
+    title: "KPI Updated",
+    description: "Your KPI data has been updated successfully.",
+  });
+};
+
+const getStatusBadge = (status: "pending" | "in_progress" | "completed") => {
+  switch (status) {
+    case "completed":
+      return (
+        <Badge className="bg-green-500">
+          <CheckCircle className="h-3 w-3 mr-1" /> Completed
+        </Badge>
+      );
+    case "in_progress":
+      return (
+        <Badge className="bg-blue-500">
+          <Clock className="h-3 w-3 mr-1" /> In Progress
+        </Badge>
+      );
+    default:
+      return (
+        <Badge variant="outline" className="text-amber-500 border-amber-500">
+          <AlertCircle className="h-3 w-3 mr-1" /> Pending
+        </Badge>
+      );
+  }
 };
